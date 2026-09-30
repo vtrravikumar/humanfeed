@@ -11,7 +11,7 @@ export function detectXMadeWithAiLabel(post: Element): MediaEvidence | undefined
   for (const label of post.querySelectorAll("span")) {
     if (label.closest(TWEET_TEXT_SELECTOR)) continue;
     if (normalizeText(label.textContent) !== LABEL_TEXT) continue;
-    if (!hasAdjacentSvg(label)) continue;
+    if (!hasBadgeSvg(label)) continue;
 
     return {
       providerId: "x-made-with-ai-label",
@@ -28,7 +28,10 @@ function normalizeText(value: string | null): string {
   return value?.replace(/\s+/g, " ").trim() ?? "";
 }
 
-function hasAdjacentSvg(label: Element): boolean {
-  return label.previousElementSibling?.matches("svg") === true
-    || label.nextElementSibling?.matches("svg") === true;
+function hasBadgeSvg(label: Element): boolean {
+  // The badge icon shares the label's div[dir="ltr"] parent, but other elements
+  // (such as a whitespace-only span) may sit between them. Generated CSS class
+  // names are intentionally not used.
+  const badge = label.parentElement;
+  return badge?.matches('div[dir="ltr"]') === true && badge.querySelector("svg") !== null;
 }

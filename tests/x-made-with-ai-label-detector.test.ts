@@ -10,7 +10,7 @@ function addPost(markup: string): HTMLElement {
 }
 
 function observedBadge(label = "Made with AI"): string {
-  return `<div dir="ltr" style="color: rgb(29, 155, 240)"><svg aria-hidden="true"></svg><span class="css-generated">${label}</span></div>`;
+  return `<div dir="ltr" style="color: rgb(29, 155, 240)"><svg aria-hidden="true"></svg><span class="css-generated"> </span><span class="css-generated">${label}</span></div>`;
 }
 
 afterEach(() => {
@@ -52,9 +52,25 @@ describe("detectXMadeWithAiLabel", () => {
     expect(detectXMadeWithAiLabel(post)).toBeUndefined();
   });
 
-  it("requires an adjacent SVG badge icon", () => {
-    const post = addPost('<div dir="ltr"><span>Made with AI</span><span>separate content</span><svg></svg></div>');
+  it("detects the observed X badge with a whitespace-only span between the SVG and label", () => {
+    const post = addPost(
+      '<div><div dir="ltr"><svg viewBox="0 0 24 24"></svg><span> </span><span>Made with AI</span></div></div>'
+    );
+
+    expect(detectXMadeWithAiLabel(post)?.providerId).toBe("x-made-with-ai-label");
+  });
+
+  it("requires the badge SVG to share the label's parent", () => {
+    const post = addPost('<div dir="ltr"><span>Made with AI</span></div><svg></svg>');
 
     expect(detectXMadeWithAiLabel(post)).toBeUndefined();
+  });
+
+  it('requires the label\'s parent to be div[dir="ltr"]', () => {
+    const withoutDir = addPost('<div><svg></svg><span> </span><span>Made with AI</span></div>');
+    const wrongDir = addPost('<div dir="rtl"><svg></svg><span> </span><span>Made with AI</span></div>');
+
+    expect(detectXMadeWithAiLabel(withoutDir)).toBeUndefined();
+    expect(detectXMadeWithAiLabel(wrongDir)).toBeUndefined();
   });
 });
