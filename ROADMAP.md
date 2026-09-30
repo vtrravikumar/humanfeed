@@ -16,14 +16,14 @@ This roadmap tracks the first usable, X-only TruePost MVP. Checkboxes describe d
 
 ## Milestone 1 — evidence and assessment contract
 
-- [ ] Review and finalize the evidence vocabulary and its semantics.
-- [ ] Define how evidence from different providers is combined without overstating certainty.
-- [ ] Define assessment states: verified AI provenance, likely AI-generated, and unknown.
-- [ ] Specify evidence provenance, timestamps, provider/version, and explanation fields.
-- [ ] Add unit tests for conflicting, missing, weak, and strong evidence.
-- [ ] Document explicit rules preventing missing evidence or weak visual signals from becoming a human/AI verdict.
+- [x] Review and finalize the evidence vocabulary and its semantics.
+- [x] Define how evidence from different providers is combined without overstating certainty.
+- [x] Define assessment states: verified AI provenance, likely AI-generated, and unknown.
+- [x] Specify evidence provenance, timestamps, provider/version, and explanation fields.
+- [x] Add unit tests for conflicting, missing, weak, and strong evidence.
+- [x] Document explicit rules preventing missing evidence or weak visual signals from becoming a human/AI verdict.
 
-**Exit criteria:** deterministic, tested mapping from evidence to user-facing assessment states; no classifier required yet.
+**Exit criteria:** met. The repository now has a deterministic, tested mapping from evidence to assessment states; no classifier is required.
 
 ## Milestone 2 — first evidence providers
 
