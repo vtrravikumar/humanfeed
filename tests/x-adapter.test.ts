@@ -154,5 +154,4 @@ describe("XAdapter", () => {
     await flushMutations();
     expect(onPost).not.toHaveBeenCalled();
   });
-}
 });
