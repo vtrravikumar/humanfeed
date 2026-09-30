@@ -84,7 +84,7 @@ export class XAdapter implements PlatformAdapter {
       : this.getLocalObservationId(postElement);
     const media = this.getMedia(postElement, observationId);
     const signature = JSON.stringify(media.map(({ kind }) => kind));
-    const state = this.postStates.get(observationId) ?? {};
+    const state: PostState = this.postStates.get(observationId) ?? {};
     if (state.lastMediaSignature === signature) return;
 
     state.lastMediaSignature = signature;
