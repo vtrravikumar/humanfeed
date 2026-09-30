@@ -78,14 +78,28 @@ export type EvidenceKind =
   | "visual-classifier";
 
 export interface MediaEvidence {
+  providerId: string;
+  providerVersion?: string;
   kind: EvidenceKind;
   result: "ai-generated" | "not-ai-generated" | "inconclusive";
   strength: "strong" | "moderate" | "weak";
+  observedAt: number; // Unix epoch milliseconds
   explanation: string;
 }
 ```
 
-The assessment layer maps evidence to the product vocabulary: verified AI provenance, likely AI-generated, or unknown. A weak visual signal or missing metadata must never be treated as proof.
+Provider identity and version make evidence traceable. Trust is configured by the application using provider IDs; a provider cannot make itself authoritative by setting a field in its own evidence. Explanations should state what the provider actually observed, not overclaim.
+
+The deterministic assessment rules are:
+
+- **Verified AI provenance:** at least one strong affirmative item from a configured trusted provider, using a provenance-capable kind (`content-credentials` or `platform-label`).
+- **Likely AI-generated:** at least one moderate or strong affirmative item, unless qualifying affirmative and negative evidence conflict.
+- **Unknown:** no qualifying affirmative evidence; any qualifying conflict; weak-only evidence; missing evidence; or negative-only evidence.
+- Weak evidence does not create a verdict or a conflict. Inconclusive evidence does not vote.
+- Negative evidence never establishes human authorship. Unknown is not a synonym for human-made.
+- A qualifying conflict (moderate/strong affirmative and moderate/strong negative) results in unknown, including when one item would otherwise qualify as verified.
+
+The assessment function does not fetch media, call providers, or classify content. A weak visual signal or missing metadata must never be treated as proof.
 
 ## Design constraints
 

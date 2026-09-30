@@ -38,9 +38,11 @@ describe("platform-neutral contracts", () => {
 
   it("models evidence as a signal rather than a presentation decision", () => {
     const evidence: MediaEvidence = {
+      providerId: "test-provenance-provider",
       kind: "content-credentials",
       result: "ai-generated",
       strength: "strong",
+      observedAt: 1_700_000_000_002,
       explanation: "Verifiable provenance is present."
     };
 
