@@ -64,7 +64,7 @@ export interface PlatformAdapter {
 }
 ```
 
-Calling `start` begins observing the supported feed and emits normalized observations. It returns a cleanup function that disconnects observers and listeners. The adapter owns selectors, mutation handling, and DOM lifecycle details.
+Calling `start` begins observing the supported feed and emits normalized post snapshots. When rendered media changes, an adapter may emit an updated snapshot with the same `observationId`; consumers should treat it as the latest state for that post, not as a new post. An empty media array means no supported media was observed at that moment and may be followed by a later snapshot containing media. The adapter returns a cleanup function that disconnects observers and listeners, and owns selectors, mutation handling, and DOM lifecycle details.
 
 ## Evidence contract
 

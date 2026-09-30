@@ -7,15 +7,20 @@ const IMAGE_SELECTOR =
   '[data-testid="tweetPhoto"] img, [data-testid="card.layoutLarge.media"] img';
 const VIDEO_SELECTOR = "video";
 
+interface PostState {
+  lastMediaSignature?: string;
+}
+
 /**
- * Reads the X feed's rendered media elements and emits normalized observations.
- * It neither changes the page nor assesses the observed media.
+ * Reads X's rendered media and emits normalized snapshots.
+ * A post may be emitted again with the same observationId when its media changes.
+ * This adapter neither changes the page nor assesses the observed media.
  */
 export class XAdapter implements PlatformAdapter {
   readonly platform = "x" as const;
 
-  private readonly seenPostIds = new Set<string>();
-  private readonly seenPostElements = new WeakSet<Element>();
+  private readonly postStates = new Map<string, PostState>();
+  private readonly localObservationIds = new WeakMap<Element, string>();
   private nextObservation = 1;
   private stopCurrentObservation?: () => void;
 
@@ -26,12 +31,16 @@ export class XAdapter implements PlatformAdapter {
     this.observePosts(this.page, onPost);
 
     const root = this.page.body ?? this.page.documentElement;
-    if (!root) {
-      return () => undefined;
-    }
+    if (!root) return () => undefined;
 
     const observer = new MutationObserver((records) => {
-        for (const record of records) {
+      for (const record of records) {
+        if (record.type === "attributes") {
+          if (record.target.nodeType === Node.ELEMENT_NODE) {
+            this.observePosts(record.target as Element, onPost);
+          }
+          continue;
+        }
         for (const node of record.addedNodes) {
           if (node.nodeType === Node.ELEMENT_NODE) {
             this.observePosts(node as Element, onPost);
@@ -40,66 +49,66 @@ export class XAdapter implements PlatformAdapter {
       }
     });
 
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-testid"]
+    });
 
     const stop = () => {
       observer.disconnect();
-      if (this.stopCurrentObservation === stop) {
-        this.stopCurrentObservation = undefined;
-      }
+      if (this.stopCurrentObservation === stop) this.stopCurrentObservation = undefined;
     };
-
     this.stopCurrentObservation = stop;
     return stop;
   }
 
   private observePosts(root: ParentNode, onPost: (post: PostObservation) => void): void {
-    if (this.isPost(root)) {
-      this.observePost(root, onPost);
+    if (root.nodeType === Node.ELEMENT_NODE) {
+      const element = root as Element;
+      const containingPost = element.matches(POST_SELECTOR)
+        ? element
+        : element.closest(POST_SELECTOR);
+      if (containingPost) this.observePost(containingPost, onPost);
     }
-
     for (const post of root.querySelectorAll(POST_SELECTOR)) {
       this.observePost(post, onPost);
     }
   }
 
-  private isPost(node: ParentNode): node is Element {
-    return node.nodeType === 1 && (node as Element).matches(POST_SELECTOR);
-  }
-
   private observePost(postElement: Element, onPost: (post: PostObservation) => void): void {
-    if (this.seenPostElements.has(postElement)) {
-      return;
-    }
-
     const platformPostId = this.getPlatformPostId(postElement);
-    if (platformPostId && this.seenPostIds.has(platformPostId)) {
-      this.seenPostElements.add(postElement);
-      return;
-    }
-
-    this.seenPostElements.add(postElement);
-    if (platformPostId) {
-      this.seenPostIds.add(platformPostId);
-    }
-
     const observationId = platformPostId
       ? `x:${platformPostId}`
-      : `x:local:${this.nextObservation++}`;
+      : this.getLocalObservationId(postElement);
+    const media = this.getMedia(postElement, observationId);
+    const signature = JSON.stringify(media.map(({ kind }) => kind));
+    const state: PostState = this.postStates.get(observationId) ?? {};
+    if (state.lastMediaSignature === signature) return;
 
+    state.lastMediaSignature = signature;
+    this.postStates.set(observationId, state);
     onPost({
       observationId,
       platform: this.platform,
       ...(platformPostId ? { platformPostId } : {}),
-      media: this.getMedia(postElement, observationId),
+      media,
       observedAt: Date.now()
     });
   }
 
+  private getLocalObservationId(postElement: Element): string {
+    const existing = this.localObservationIds.get(postElement);
+    if (existing) return existing;
+    const id = `x:local:${this.nextObservation++}`;
+    this.localObservationIds.set(postElement, id);
+    return id;
+  }
+
   private getPlatformPostId(postElement: Element): string | undefined {
     const href = postElement.querySelector(STATUS_LINK_SELECTOR)?.getAttribute("href");
-    const match = href?.match(/\/status\/(\d+)/);
-    return match?.[1];
+    return href?.match(/\/status\/(\d+)/)?.[1];
   }
 
   private getMedia(postElement: Element, observationId: string): MediaObservation[] {
@@ -115,7 +124,6 @@ export class XAdapter implements PlatformAdapter {
         kind: "video" as const
       })
     );
-
     return [...images, ...videos];
   }
 }
