@@ -6,7 +6,7 @@ export default defineConfig({
     lib: {
       entry: fileURLToPath(new URL("./src/extension/popup.ts", import.meta.url)),
       formats: ["iife"],
-      name: "HumanFeedPopup",
+      name: "TruePostPopup",
       fileName: () => "popup.js"
     },
     outDir: "dist",

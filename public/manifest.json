@@ -1,9 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "HumanFeed",
+  "name": "TruePost",
   "version": "0.1.0",
-  "description": "A privacy-first social-media media trust layer.",
+  "description": "TruePost is a user-controlled trust and context layer for social media.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
-    "default_popup": "popup.html"
-  }
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

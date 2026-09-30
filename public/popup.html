@@ -3,10 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HumanFeed</title>
+    <title>TruePost</title>
+    <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <main>HumanFeed extension skeleton</main>
+    <main class="popup-shell">
+      <header class="product-header">
+        <p class="publisher">By VTRRK</p>
+        <h1>TruePost</h1>
+        <p class="description">
+          A user-controlled trust and context layer for social media.
+        </p>
+      </header>
+
+      <section class="privacy-note" aria-labelledby="privacy-heading">
+        <h2 id="privacy-heading">Privacy</h2>
+        <p>
+          This foundation observes X posts locally for image and video elements.
+          It does not transmit feed content or assess media.
+        </p>
+      </section>
+
+      <section class="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">About</h2>
+        <p>Created by V.T.R. Ravi Kumar</p>
+        <a href="https://vtrrk.in" target="_blank" rel="noopener noreferrer">
+          vtrrk.in
+        </a>
+        <p class="name-note">
+          TruePost is a working product name pending naming and trademark
+          clearance.
+        </p>
+      </section>
+    </main>
     <script src="popup.js"></script>
   </body>
 </html>

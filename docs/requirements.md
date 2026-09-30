@@ -46,5 +46,9 @@ Help a user reduce exposure to AI-generated images and videos in supported socia
 - **Unknown:** insufficient or unavailable evidence.
 - **User override:** an explicit allow/block choice takes precedence over automated assessment.
 
-## 6. Account-level filtering
+## 6. Proposed detection validation goals
+
+When AI-media detection is designed and evaluated, the proposed validation goals are at least 90% recall and at least 95% precision on a representative, labelled evaluation set. These are future validation goals, not current capabilities or guarantees. Unknown origin must not automatically be treated as AI-generated.
+
+## 7. Account-level filtering
 The MVP supports manual account rules. Automated account recommendations are a later increment and must be based on repeated, observable media evidence—not account name, profile image, or a single post alone. Recommendations must be reversible and explainable.

@@ -1,6 +1,6 @@
 # HumanFeed
 
-A privacy-first browser extension to help users identify and filter AI-generated images and videos in social media feeds.
+HumanFeed is the engineering repository for **TruePost**, a privacy-first browser extension intended to help users identify and filter AI-generated images and videos in social-media feeds. TruePost is a working product name and has not yet undergone naming or trademark clearance.
 
 ## MVP scope
 
@@ -21,7 +21,11 @@ The initial release focuses on **AI-generated visual media** (images and videos)
 
 ## Status
 
-The repository contains the initial platform-neutral TypeScript contracts and a buildable Chrome Manifest V3 skeleton. It does not yet include an X adapter, feed observation, media detection, AI-text detection, remote services, a backend, or a visual classifier.
+The repository contains platform-neutral TypeScript contracts, a buildable Chrome Manifest V3 extension, and a read-only X (`x.com`) feed observer. Its popup presents the TruePost product identity, a privacy notice, and creator information for V.T.R. Ravi Kumar (VTRRK).
+
+The X observer locally identifies rendered post containers and their image/video elements, then produces normalized observations in memory. It does not extract post text, fetch or download media, transmit feed data, assess media, modify the page, use storage, or contact a backend.
+
+The foundation does not yet include media detection, AI-text detection, remote services, a backend, storage, a visual classifier, or any filtering/presentation behavior.
 
 ## Local development
 
@@ -36,13 +40,15 @@ npm run build
 
 `npm run dev` rebuilds the extension bundle when local files change. `npm run build` creates a loadable unpacked extension in `dist/`. In Chrome, open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the `dist/` directory.
 
-The current popup confirms that the extension skeleton loads. It does not interact with X or any other social-media page.
+The current popup is a branded TruePost shell. It provides an accessible external link to [vtrrk.in](https://vtrrk.in), opening in a new tab with `noopener` and `noreferrer`. It accurately describes the local, read-only X observation milestone.
+
+To test the observer manually, build the extension, reload its unpacked `dist/` directory from `chrome://extensions`, then open or refresh `https://x.com/home`. This milestone has no visible UI or feed modifications; use Chrome DevTools breakpoints in `content.js` to inspect normalized observations while posts are added to the feed.
 
 ## Project structure
 
 - `src/core/`: platform-neutral observation and evidence contracts.
-- `src/platforms/`: the platform adapter boundary; no platform adapter is implemented yet.
-- `src/extension/`: extension-specific build entries, kept separate from the core.
+- `src/platforms/`: the platform adapter boundary and X-specific DOM adapter.
+- `src/extension/`: popup and X content-script build entries, kept separate from the core.
 - `public/`: the Manifest V3 manifest and static popup shell.
 - `tests/`: focused Vitest contract tests.
 
