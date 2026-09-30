@@ -155,3 +155,4 @@ describe("XAdapter", () => {
     expect(onPost).not.toHaveBeenCalled();
   });
 }
+});
